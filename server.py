@@ -67,35 +67,57 @@ class HTTPResponse():
 	def get301(self, url):
 		msg = """
 		<HTML><HEAD><meta http-equiv="content-type" content="text/html;charset=utf-8">
-		<TITLE>301 Moved Permanently</TITLE><link rel="stylesheet" type="text/css" href="error.css"></HEAD><BODY>
+		<TITLE>301 Moved Permanently</TITLE><link rel="stylesheet" type="text/css"></HEAD><BODY>
 		<H1 class="err">301</H1>
 		<H2 class="msg"> The document has moved
 		<A HREF=""" + url + """>here</A>.</H2>
 		</BODY></HTML>
 		"""
-		print(msg)
+		#print(msg)
+		return msg
+
+	def get404(self):
+		msg = """
+		<!DOCTYPE html>
+		<html>
+		<head>
+			<title>404 Page</title>
+		        <meta http-equiv="Content-Type"
+		        content="text/html;charset=utf-8"/>
+		        <!-- check conformance at http://validator.w3.org/check -->
+		        <link rel="stylesheet" type="text/css">
+		</head>
+
+		<body>
+			<div class="eg">
+				<h1 class="err"> 404 </h1>
+				<h2 class="msg"> Sorry this is not a valid page, please try again and stay safe...</h2>
+			</div>
+		</body>
+		</html> 
+		"""
 		return msg
 
 	def get405(self, method):
 		msg = """
 		<HTML><HEAD><meta http-equiv="content-type" content="text/html;charset=utf-8">
-		<TITLE>405 Method Not Allowed</TITLE><link rel="stylesheet" type="text/css" href="error.css"></HEAD><BODY>
+		<TITLE>405 Method Not Allowed</TITLE><link rel="stylesheet" type="text/css"></HEAD><BODY>
 		<H1 class="err">405</H1>
 		<H2 class="msg">""" + method + """ Method Not Allowed</H2>
 		</BODY></HTML>
 		"""
-		print(msg)
+		#print(msg)
 		return msg
 
 	def getError(self):
 		msg = """
 		<HTML><HEAD><meta http-equiv="content-type" content="text/html;charset=utf-8">
-		<TITLE>500 Internal Server Error</TITLE><link rel="stylesheet" type="text/css" href="error.css"></HEAD><BODY>
+		<TITLE>500 Internal Server Error</TITLE><link rel="stylesheet" type="text/css"></HEAD><BODY>
 		<H1 class="err">Oh No, the server got some error!</H1>
 		<H2 class="msg">it will probably work next time...</H2>
 		</BODY></HTML>
 		"""
-		print(msg)
+		#print(msg)
 		return msg
 
 	def getFile(self, fileName):
@@ -135,7 +157,7 @@ class HTTPResponse():
 			if self.method != "GET":
 				self.code = "405"
 				self.ContentType = "text/html"
-				print(self.ContentType)
+				#print(self.ContentType)
 				self.body = self.header() + self.get405(self.method)
 				return
 
@@ -147,7 +169,7 @@ class HTTPResponse():
 				#self.content = self.header() + self.get301("index.html")
 				#return
 			self.getFileType()
-			print(self.ContentType)
+			#print(self.ContentType)
 			if len(self.body) > 0:
 				return
 			fileContent = self.getFile(self.URL)
@@ -156,20 +178,20 @@ class HTTPResponse():
 		except IsADirectoryError:
 			self.code = "301"
 			d = self.URL.split('/')[-1]
-			print("director: ", d)
+			print("directory: ", d)
 			self.body = self.header() + self.get301(d+"/index.html")
 			return
 		except FileNotFoundError:
 			self.code = "404"
 			self.ContentType = "text/html"
-			print(self.ContentType)
-			self.body = self.header() + self.getFile("www/404.html")
+			#print(self.ContentType)
+			self.body = self.header() + self.get404() # self.getFile("www/404.html")
 			return
 		except BaseException as e:
 			print(str(e))
 			self.code = "500"
 			self.ContentType = "text/html"
-			print(self.ContentType)
+			#print(self.ContentType)
 			self.body = self.header() + self.getError()
 			return
 
