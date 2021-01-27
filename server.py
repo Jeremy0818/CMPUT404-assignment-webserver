@@ -43,6 +43,7 @@ class HTTPResponse():
 		self.httpVersion = ""
 		self.ContentType = ""
 		self.code = ""
+		self.Location = ""
 		self.statusText = {"200": "OK", "301": "Moved Permanently",
 							 "404": "Not Found", "405": "Method Not Allowed", 
 							 "500": "Internal Server Error"}
@@ -50,7 +51,10 @@ class HTTPResponse():
 
 	def header(self):
 		h = self.httpVersion + " " + self.code + " " + self.statusText[self.code] + " \r\n" +\
-				"Content-Type: " + self.ContentType + "\r\n\r\n"
+				"Content-Type: " + self.ContentType + "\r\n"
+		if len(self.Location) > 0:
+			h += "Location: " + self.Location + "\r\n"
+		h+= "\r\n"
 		print("----- Header -----")
 		print(h)
 		return h
@@ -179,7 +183,8 @@ class HTTPResponse():
 			self.code = "301"
 			d = self.URL.split('/')[-1]
 			print("directory: ", d)
-			self.body = self.header() + self.get301(d+"/index.html")
+			self.Location = d + "/index.html"
+			self.body = self.header() + self.get301(d + "/index.html")
 			return
 		except FileNotFoundError:
 			self.code = "404"
