@@ -69,6 +69,9 @@ class HTTPResponse():
 			raise FileNotFoundError()
 
 	def get301(self, url):
+		"""
+		This is the 301 HTTP response's body
+		"""
 		msg = """
 		<HTML><HEAD><meta http-equiv="content-type" content="text/html;charset=utf-8">
 		<TITLE>301 Moved Permanently</TITLE><link rel="stylesheet" type="text/css"></HEAD><BODY>
@@ -77,10 +80,12 @@ class HTTPResponse():
 		<A HREF=""" + url + """>here</A>.</H2>
 		</BODY></HTML>
 		"""
-		#print(msg)
 		return msg
 
 	def get404(self):
+		"""
+		This is the 404 HTTP response's body
+		"""
 		msg = """
 		<!DOCTYPE html>
 		<html>
@@ -103,6 +108,9 @@ class HTTPResponse():
 		return msg
 
 	def get405(self, method):
+		"""
+		This is the 405 HTTP response's body
+		"""
 		msg = """
 		<HTML><HEAD><meta http-equiv="content-type" content="text/html;charset=utf-8">
 		<TITLE>405 Method Not Allowed</TITLE><link rel="stylesheet" type="text/css"></HEAD><BODY>
@@ -110,10 +118,12 @@ class HTTPResponse():
 		<H2 class="msg">""" + method + """ Method Not Allowed</H2>
 		</BODY></HTML>
 		"""
-		#print(msg)
 		return msg
 
 	def getError(self):
+		"""
+		This is the 500 HTTP response's body
+		"""
 		msg = """
 		<HTML><HEAD><meta http-equiv="content-type" content="text/html;charset=utf-8">
 		<TITLE>500 Internal Server Error</TITLE><link rel="stylesheet" type="text/css"></HEAD><BODY>
@@ -121,36 +131,44 @@ class HTTPResponse():
 		<H2 class="msg">it will probably work next time...</H2>
 		</BODY></HTML>
 		"""
-		#print(msg)
 		return msg
 
 	def getFile(self, fileName):
+		"""
+		This function will open the file return the content
+		"""
 		with open(fileName, 'r') as f:
 			return f.read()
 
 	def getFileType(self):
+		"""
+		This function will check the file type of current url.
+		It will only check for mime-type HTML and CSS.
+		"""
 		fileType = self.URL.split('.')[-1]
 		if fileType == "html":
 			self.ContentType = "text/html"
 		elif fileType == "css":
 			self.ContentType = "text/css"
-		# else:
-		# 	self.body = self.header() + self.getFile("www/404.html")
 
 	def getResponse(self, requestData):
+		"""
+		This function is the main function that handle the whole HTTP request and
+		create a corresponding HTTP response.
+		"""
 		try:
 			s = requestData.decode("utf-8") 
 
 			self.code = "200"
-			# get method
+			# get request method
 			s = s.split(' ', 1)
 			self.method = s[0]
-			# get URL
+			# get request URL
 			s = s[1]
 			s = s.split(' ', 1)
 			self.URL = "www" + s[0]
 			
-			# get http version
+			# get request http version
 			s = s[1]
 			s = s.split('\r\n', 1)
 			self.httpVersion = s[0]
@@ -159,27 +177,26 @@ class HTTPResponse():
 			self.checkForSecure()
 
 			if self.method != "GET":
+				#  the server does not allow other HTTP request method¥
+				#  change the status code to 405
 				self.code = "405"
 				self.ContentType = "text/html"
-				#print(self.ContentType)
 				self.body = self.header() + self.get405(self.method)
 				return
 
 			if self.URL[-1] == '/':
+				#  automatically direct the path to index.html 
 				self.URL += "index.html"
-				#self.ContentType = "text/html"
-				#print(self.ContentType)
-				
-				#self.content = self.header() + self.get301("index.html")
-				#return
+
 			self.getFileType()
-			#print(self.ContentType)
 			if len(self.body) > 0:
 				return
 			fileContent = self.getFile(self.URL)
 			self.body = self.header() + fileContent
 			return
 		except IsADirectoryError:
+			#  fail to open file as the path is a directory
+			#  change status code to 301 for redirection
 			self.code = "301"
 			d = self.URL.split('/')[-1]
 			print("directory: ", d)
@@ -187,16 +204,18 @@ class HTTPResponse():
 			self.body = self.header() + self.get301(d + "/index.html")
 			return
 		except FileNotFoundError:
+			#  fail to open the file as the path is not a file nor directory
+			#  change the status code to 404 error
 			self.code = "404"
 			self.ContentType = "text/html"
-			#print(self.ContentType)
-			self.body = self.header() + self.get404() # self.getFile("www/404.html")
+			self.body = self.header() + self.get404()
 			return
 		except BaseException as e:
+			#  there is an error in the code and not handle well
+			#  this is an extra functionality just for better implementation
 			print(str(e))
 			self.code = "500"
 			self.ContentType = "text/html"
-			#print(self.ContentType)
 			self.body = self.header() + self.getError()
 			return
 
