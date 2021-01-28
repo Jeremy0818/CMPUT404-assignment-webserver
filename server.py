@@ -52,8 +52,8 @@ class HTTPResponse():
 	def header(self):
 		h = self.httpVersion + " " + self.code + " " + self.statusText[self.code] + " \r\n" +\
 				"Content-Type: " + self.ContentType + "\r\n"
-		if len(self.Location) > 0:
-			h += "Location: " + self.Location + "\r\n"
+		# if len(self.Location) > 0:
+		# 	h += "Location: " + self.Location + "\r\n"
 		h+= "\r\n"
 		print("----- Header -----")
 		print(h)
