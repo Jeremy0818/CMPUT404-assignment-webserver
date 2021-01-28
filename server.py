@@ -37,6 +37,11 @@ class MyWebServer(socketserver.BaseRequestHandler):
 		self.request.sendall(bytearray(response.body,'utf-8'))
 
 class HTTPResponse():
+	"""
+	This is the class that has all the functions implemented to handle the HTTP request
+	and provide the corresponding HTTP response. It has somse attributes that store the
+	important information to form the response.
+	"""
 	def __init__(self):
 		self.method = ""
 		self.URL = ""
@@ -50,6 +55,9 @@ class HTTPResponse():
 		self.body = ""
 
 	def header(self):
+		"""
+		This function will create the header of the HTTP response using the attritbues.
+		"""
 		h = self.httpVersion + " " + self.code + " " + self.statusText[self.code] + " \r\n" +\
 				"Content-Type: " + self.ContentType + "\r\n"
 		if len(self.Location) > 0:
@@ -60,15 +68,23 @@ class HTTPResponse():
 		return h
 
 	def printInfo(self):
+		"""
+		This function will print the information of the HTTP request obtained from the client.
+		"""
 		print("Method:", self.method)
 		print("URL:", self.URL)
 		print("HTTP version:", self.httpVersion)
 
 	def checkForSecure(self):
+		"""
+		This function wil check if the URL is a safe/valid request. It essentially check if the
+		subtring "../" is in the request, this is because it is not safe to let the user access
+		any file from outside of the root folder.
+		"""
 		if "../" in self.URL:
 			raise FileNotFoundError()
 
-	def get301(self, url):
+	def get301Body(self, url):
 		"""
 		This is the 301 HTTP response's body
 		"""
@@ -82,7 +98,7 @@ class HTTPResponse():
 		"""
 		return msg
 
-	def get404(self):
+	def get404Body(self):
 		"""
 		This is the 404 HTTP response's body
 		"""
@@ -107,7 +123,7 @@ class HTTPResponse():
 		"""
 		return msg
 
-	def get405(self, method):
+	def get405Body(self, method):
 		"""
 		This is the 405 HTTP response's body
 		"""
@@ -120,7 +136,7 @@ class HTTPResponse():
 		"""
 		return msg
 
-	def getError(self):
+	def getSystemErrorBody(self):
 		"""
 		This is the 500 HTTP response's body
 		"""
@@ -181,7 +197,7 @@ class HTTPResponse():
 				#  change the status code to 405
 				self.code = "405"
 				self.ContentType = "text/html"
-				self.body = self.header() + self.get405(self.method)
+				self.body = self.header() + self.get405Body(self.method)
 				return
 
 			if self.URL[-1] == '/':
@@ -201,14 +217,14 @@ class HTTPResponse():
 			d = self.URL.split('/')[-1]
 			print("directory: ", d)
 			self.Location = d + "/"
-			self.body = self.header() + self.get301(d + "/index.html")
+			self.body = self.header() + self.get301Body(d + "/index.html")
 			return
 		except FileNotFoundError:
 			#  fail to open the file as the path is not a file nor directory
 			#  change the status code to 404 error
 			self.code = "404"
 			self.ContentType = "text/html"
-			self.body = self.header() + self.get404()
+			self.body = self.header() + self.get404Body()
 			return
 		except BaseException as e:
 			#  there is an error in the code and not handle well
@@ -216,7 +232,7 @@ class HTTPResponse():
 			print(str(e))
 			self.code = "500"
 			self.ContentType = "text/html"
-			self.body = self.header() + self.getError()
+			self.body = self.header() + self.getSystemErrorBody()
 			return
 
 if __name__ == "__main__":
