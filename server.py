@@ -62,6 +62,8 @@ class HTTPResponse():
 				"Content-Type: " + self.ContentType + "\r\n"
 		if len(self.Location) > 0:
 			h += "Location: " + self.Location + "\r\n"
+		if self.code == "500":
+			h += "Connection: close\r\n"
 		h+= "\r\n"
 		print("----- Header -----")
 		print(h)
@@ -173,7 +175,7 @@ class HTTPResponse():
 		create a corresponding HTTP response.
 		"""
 		try:
-			s = requestData.decode("utf-8") 
+			s = requestData.decode("utf-8")
 
 			self.code = "200"
 			# get request method
