@@ -26,4 +26,6 @@ compatible) http://docs.python.org/2/library/socketserver.html
 
 Collaboration / Consultation
 ========================
-yliu17, youwei1, sliu9
+* yliu17
+* youwei1
+* sliu9
